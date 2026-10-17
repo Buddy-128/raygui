@@ -829,7 +829,7 @@ RAYGUIAPI int GuiGetTextWidth(const char *text);                // Get text widt
 // Controls
 //----------------------------------------------------------------------------------------------------------
 // Container/separator controls, useful for controls organization
-RAYGUIAPI int GuiWindowBox(Rectangle bounds, const char *title);                                       // Window Box control, shows a window that can be closed
+RAYGUIAPI int GuiWindowBox(Rectangle bounds, const char *title, float scale);                                       // Window Box control, shows a window that can be closed
 RAYGUIAPI int GuiGroupBox(Rectangle bounds, const char *text);                                         // Group Box control with text name
 RAYGUIAPI int GuiLine(Rectangle bounds, const char *text);                                             // Line separator control, could contain text
 RAYGUIAPI int GuiPanel(Rectangle bounds, const char *text);                                            // Panel control, useful to group controls
@@ -863,8 +863,8 @@ RAYGUIAPI int GuiListView(Rectangle bounds, const char *text, int *scrollIndex, 
 RAYGUIAPI int GuiListViewEx(Rectangle bounds, char **text, int count, int *scrollIndex, int *active, int *focus); // List View control, using text entries list and returning focus entry
 RAYGUIAPI int GuiTabBar(Rectangle bounds, const char *text, int *hscroll, int *active);                // Tab Bar control
 RAYGUIAPI int GuiTabBarEx(Rectangle bounds, char **text, int count, int *hscroll, int *active, int *focus); // Tab Bar control, using text entries list and returning focus entry
-RAYGUIAPI int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *btnText, int *btnActive); // Message Box control, displays a message
-RAYGUIAPI int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, char *text, int textSize, const char *btnText, int *btnActive, bool *secretViewActive); // Text Input Box control, ask for text, supports secret
+RAYGUIAPI int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *btnText, int *btnActive, float scale); // Message Box control, displays a message
+RAYGUIAPI int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, char *text, int textSize, const char *btnText, int *btnActive, bool *secretViewActive, scale); // Text Input Box control, ask for text, supports secret
 RAYGUIAPI int GuiColorPicker(Rectangle bounds, const char *text, Color *color);                        // Color Picker control, includes Color bar controls
 RAYGUIAPI int GuiColorPanel(Rectangle bounds, const char *text, Color *color);                         // Color Panel control
 RAYGUIAPI int GuiColorBarAlpha(Rectangle bounds, const char *text, float *alpha);                      // Color Bar Alpha control
@@ -1708,7 +1708,7 @@ int GuiGetStyle(int control, int property)
 //----------------------------------------------------------------------------------
 
 // Window Box control
-int GuiWindowBox(Rectangle bounds, const char *title)
+int GuiWindowBox(Rectangle bounds, const char *title, float scale)
 {
     // Window title bar height (including borders)
     // NOTE: This define is also used by GuiMessageBox() and GuiTextInputBox()
@@ -1723,10 +1723,10 @@ int GuiWindowBox(Rectangle bounds, const char *title)
     int result = RESULT_NONE;
     //GuiState state = guiState;
 
-    int statusBarHeight = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT;
+    float statusBarHeight = RAYGUI_WINDOWBOX_STATUSBAR_HEIGHT * scale;
 	int statusBorderWidth = GuiGetStyle(STATUSBAR, BORDER_WIDTH);
 
-    Rectangle statusBar = { bounds.x, bounds.y, bounds.width, (float)statusBarHeight };
+    Rectangle statusBar = { bounds.x, bounds.y, bounds.width, statusBarHeight };
     if (bounds.height < statusBarHeight*2.0f) bounds.height = statusBarHeight*2.0f;
 
     const float vPadding = statusBarHeight/2.0f - RAYGUI_WINDOWBOX_CLOSEBUTTON_HEIGHT/2.0f;
@@ -4367,7 +4367,7 @@ int GuiColorPanelHSV(Rectangle bounds, const char *text, Vector3 *colorHsv)
 
 // Message Box control
 // NOTE: Button pressed is returned through btnActive parameter, 0 for window close button
-int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *btnText, int *btnActive)
+int GuiMessageBox(Rectangle bounds, const char *title, const char *message, const char *btnText, int *btnActive, float scale)
 {
     #if !defined(RAYGUI_MESSAGEBOX_BUTTON_HEIGHT)
         #define RAYGUI_MESSAGEBOX_BUTTON_HEIGHT    24
@@ -4396,7 +4396,7 @@ int GuiMessageBox(Rectangle bounds, const char *title, const char *message, cons
 
     // Draw control
     //--------------------------------------------------------------------
-    if (GuiWindowBox(bounds, title) == RESULT_PRESSED)
+    if (GuiWindowBox(bounds, title, scale) == RESULT_PRESSED)
     {
         *btnActive = 0;
         result = RESULT_PRESSED;
@@ -4428,7 +4428,7 @@ int GuiMessageBox(Rectangle bounds, const char *title, const char *message, cons
 
 // Text Input Box control
 // NOTE: Button pressed is returned through btnActive parameter, 0 for window close button
-int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, char *text, int textSize, const char *btnText, int *btnActive, bool *secretViewActive)
+int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, char *text, int textSize, const char *btnText, int *btnActive, bool *secretViewActive, float scale)
 {
     #if !defined(RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT)
         #define RAYGUI_TEXTINPUTBOX_BUTTON_HEIGHT      24
@@ -4477,7 +4477,7 @@ int GuiTextInputBox(Rectangle bounds, const char *title, const char *message, ch
 
     // Draw control
     //--------------------------------------------------------------------
-    if (GuiWindowBox(bounds, title) == RESULT_PRESSED)
+    if (GuiWindowBox(bounds, title, scale) == RESULT_PRESSED)
     {
         *btnActive = 0;
         result = RESULT_PRESSED;
